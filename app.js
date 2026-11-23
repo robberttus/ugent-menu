@@ -1,11 +1,11 @@
 const HYDRA_BASE = 'https://hydra.ugent.be/api/2.0/resto';
 
 const RESTOS = [
-  { name: 'De Brug', endpoint: 'nl-debrug' },
-  { name: 'Sterre', endpoint: 'nl-sterre' },
-  { name: 'Coupure', endpoint: 'nl-coupure' },
-  { name: 'Ardoyen', endpoint: 'nl-ardoyen' },
-  { name: 'Merelbeke', endpoint: 'nl-merelbeke' }
+  { name: 'De Brug', slug: 'debrug', endpoint: 'nl-debrug' },
+  { name: 'Sterre', slug: 'sterre', endpoint: 'nl-sterre' },
+  { name: 'Coupure', slug: 'coupure', endpoint: 'nl-coupure' },
+  { name: 'Ardoyen', slug: 'ardoyen', endpoint: 'nl-ardoyen' },
+  { name: 'Merelbeke', slug: 'merelbeke', endpoint: 'nl-merelbeke' }
 ];
 
 const KIND_LABELS = {
@@ -52,7 +52,38 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
+function getRestoFromHash() {
+  const raw = decodeURIComponent(window.location.hash.replace(/^#/, '')).trim().toLowerCase();
+  if (!raw) return null;
+  const normalized = raw.replace(/^nl-/, '').replace(/\s+/g, '');
+  return RESTOS.find(
+    r => r.slug === normalized || r.endpoint === raw || r.name.toLowerCase().replace(/\s+/g, '') === normalized
+  );
+}
+
+function syncHashWithActiveResto() {
+  const current = RESTOS.find(r => r.endpoint === state.activeEndpoint);
+  if (current && window.location.hash !== `#${current.slug}`) {
+    history.replaceState(null, '', `#${current.slug}`);
+  }
+}
+
 async function init() {
+  const hashResto = getRestoFromHash();
+  if (hashResto) {
+    state.activeEndpoint = hashResto.endpoint;
+  }
+  syncHashWithActiveResto();
+
+  window.addEventListener('hashchange', () => {
+    const matched = getRestoFromHash();
+    if (matched && matched.endpoint !== state.activeEndpoint) {
+      state.activeEndpoint = matched.endpoint;
+      renderRestoTabs();
+      renderMenu();
+    }
+  });
+
   menuContentEl.innerHTML = '<div class="empty-msg">Menu laden...</div>';
 
   try {
@@ -100,6 +131,7 @@ function renderRestoTabs() {
   restoTabsEl.querySelectorAll('.resto-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       state.activeEndpoint = btn.dataset.ep;
+      syncHashWithActiveResto();
       renderRestoTabs();
       renderMenu();
     });
