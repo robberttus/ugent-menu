@@ -92,12 +92,48 @@ body {
   font-weight: 700;
 }
 
-/* Date Tabs */
+/* Date Bar & Tabs */
+.date-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 1rem 0;
+}
+
+.date-arrow {
+  background: var(--white);
+  color: var(--ugent-blue);
+  border: 1px solid var(--border);
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.date-arrow:hover:not(:disabled) {
+  background: var(--ugent-blue);
+  color: var(--white);
+  border-color: var(--ugent-blue);
+}
+
+.date-arrow:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 .date-tabs {
   display: flex;
   gap: 0.4rem;
   overflow-x: auto;
-  padding: 1rem 0;
+  flex: 1;
+  scroll-behavior: smooth;
   scrollbar-width: none;
 }
 

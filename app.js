@@ -25,6 +25,8 @@ const state = {
 
 const restoTabsEl = document.getElementById('resto-tabs');
 const dateTabsEl = document.getElementById('date-tabs');
+const prevDayBtn = document.getElementById('prev-day');
+const nextDayBtn = document.getElementById('next-day');
 const menuContentEl = document.getElementById('menu-content');
 
 function getTodayISO() {
@@ -110,6 +112,10 @@ function renderDateTabs() {
     return `<button class="date-tab ${active}" data-date="${d}">${escapeHtml(formatDateLabel(d))}</button>`;
   }).join('');
 
+  const idx = state.dates.indexOf(state.activeDate);
+  prevDayBtn.disabled = idx <= 0;
+  nextDayBtn.disabled = idx === -1 || idx >= state.dates.length - 1;
+
   dateTabsEl.querySelectorAll('.date-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       state.activeDate = btn.dataset.date;
@@ -117,7 +123,30 @@ function renderDateTabs() {
       renderMenu();
     });
   });
+
+  const activeBtn = dateTabsEl.querySelector('.date-tab.active');
+  if (activeBtn) {
+    activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }
 }
+
+prevDayBtn.addEventListener('click', () => {
+  const idx = state.dates.indexOf(state.activeDate);
+  if (idx > 0) {
+    state.activeDate = state.dates[idx - 1];
+    renderDateTabs();
+    renderMenu();
+  }
+});
+
+nextDayBtn.addEventListener('click', () => {
+  const idx = state.dates.indexOf(state.activeDate);
+  if (idx !== -1 && idx < state.dates.length - 1) {
+    state.activeDate = state.dates[idx + 1];
+    renderDateTabs();
+    renderMenu();
+  }
+});
 
 function renderMenu() {
   const day = (state.menus[state.activeEndpoint] || {})[state.activeDate];
